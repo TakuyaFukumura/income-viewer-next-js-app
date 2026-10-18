@@ -1,12 +1,12 @@
-# basic-next-js-app
+# income-viewer-next-js-app
 
 Next.jsを使ったシンプルな「Hello, world.」アプリケーションです。
 このプロジェクトは、SQLiteデータベースからメッセージを取得して表示する基本的な機能を提供します。
 
 ## 技術スタック
 
-- **Next.js 16.3.3** - React フレームワーク（App Routerを使用）
-- **React 19.2.8** - ユーザーインターフェース構築
+- **Next.js 16.4.0** - React フレームワーク（App Routerを使用）
+- **React 19.3.0** - ユーザーインターフェース構築
 - **TypeScript** - 型安全性
 - **Tailwind CSS 4** - スタイリング
 - **SQLite** - データベース（better-sqlite3）
@@ -33,10 +33,10 @@ Next.jsを使ったシンプルな「Hello, world.」アプリケーションで
 
 1. リポジトリをクローン：
     ```bash
-    git clone https://github.com/TakuyaFukumura/basic-next-js-app.git
+    git clone https://github.com/TakuyaFukumura/income-viewer-next-js-app.git
     ```
     ```bash
-    cd basic-next-js-app
+    cd income-viewer-next-js-app
     ```
 
 2. 依存関係をインストール：
