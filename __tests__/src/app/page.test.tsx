@@ -31,7 +31,9 @@ describe('Home page', () => {
         render(await Home());
 
         expect(screen.getByRole('heading', {name: '収入推移'})).toBeInTheDocument();
+        expect(screen.getByText('サンプルデータ')).toBeInTheDocument();
         expect(screen.getByText(/税引後収入/)).toBeInTheDocument();
+        expect(screen.getByText(/副業・事業、不動産、年金/)).toBeInTheDocument();
         expect(screen.getByText('棒の高さは年ごとの合計、色分けは収入区分を示します。')).toBeInTheDocument();
         expect(screen.getByRole('link', {name: '数値を表で見る'})).toHaveAttribute('href', '#income-table');
         expect(screen.getByRole('group', {name: /年別収入積み上げ棒グラフ/})).toBeInTheDocument();
@@ -70,7 +72,9 @@ describe('Home page', () => {
 
         render(await Home());
 
-        expect(screen.getByRole('alert')).toHaveTextContent('サンプル収入データを読み込めませんでした。');
+        expect(screen.getByRole('alert')).toHaveTextContent(
+            'サンプル収入データを読み込めませんでした。ページを再読み込みし、解消しない場合は管理者へ連絡してください。'
+        );
         expect(screen.getByRole('alert')).not.toHaveTextContent('private detail');
         expect(consoleError).toHaveBeenCalled();
         consoleError.mockRestore();
