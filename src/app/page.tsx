@@ -1,109 +1,75 @@
-'use client';
+import IncomeStackedBarChart from './components/income/IncomeStackedBarChart';
+import IncomeTable from './components/income/IncomeTable';
+import {createIncomeRepository} from '../../lib/income/repositories/createIncomeRepository';
+import {IncomeCsvValidationError, IncomeDataReadError} from '../../lib/income/types';
 
-import {useCallback, useEffect, useRef, useState} from 'react';
-import {isErrorResponse, isMessageResponse} from '../types/api';
+export const dynamic = 'force-dynamic';
 
-export default function Home() {
-    const [message, setMessage] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const requestController = useRef<AbortController | null>(null);
-
-    const fetchMessage = useCallback(async () => {
-        requestController.current?.abort();
-        const controller = new AbortController();
-        requestController.current = controller;
-        setLoading(true);
-        setError(null);
-
-        try {
-            const response = await fetch('/api/message', {signal: controller.signal});
-            const data: unknown = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    isErrorResponse(data) ? data.error : 'メッセージの取得に失敗しました'
-                );
-            }
-
-            if (!isMessageResponse(data)) {
-                throw new Error('APIレスポンスの形式が不正です');
-            }
-
-            setMessage(data.message);
-        } catch (err) {
-            if (err instanceof Error && err.name === 'AbortError') {
-                return;
-            }
-            setError(err instanceof Error ? err.message : '予期しないエラーが発生しました');
-        } finally {
-            if (!controller.signal.aborted) {
-                setLoading(false);
-            }
+export default async function Home() {
+    let incomes;
+    try {
+        incomes = await createIncomeRepository().getAnnualIncomes();
+    } catch (error) {
+        if (error instanceof IncomeCsvValidationError) {
+            return (
+                <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+                    <h2 className="mb-6 text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        年別収入の推移
+                    </h2>
+                    <p className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200" role="alert">
+                        収入データに不備があります。{error.message}
+                    </p>
+                </main>
+            );
         }
-    }, []);
 
-    useEffect(() => {
-        // 初回表示時にAPIを取得し、取得完了後に表示状態を更新する。
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        void fetchMessage();
-        return () => {
-            requestController.current?.abort();
-        };
-    }, [fetchMessage]);
+        if (error instanceof IncomeDataReadError) {
+            console.error('サンプル収入データの読み込みに失敗しました。', error.originalError);
+            return (
+                <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+                    <h2 className="mb-6 text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        年別収入の推移
+                    </h2>
+                    <p className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200" role="alert">
+                        サンプル収入データを読み込めませんでした。
+                    </p>
+                </main>
+            );
+        }
 
-    let content;
-    if (loading) {
-        content = (
-            <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-2 text-gray-600 dark:text-gray-400">読み込み中...</span>
-            </div>
-        );
-    } else if (error) {
-        content = (
-            <div className="text-red-600 dark:text-red-400 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                エラー: {error}
-                <button
-                    type="button"
-                    onClick={() => void fetchMessage()}
-                    className="mt-4 block mx-auto rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-                >
-                    再試行
-                </button>
-            </div>
-        );
-    } else {
-        content = (
-            <div
-                className="text-2xl font-semibold text-blue-600 dark:text-blue-400 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-700">
-                {message}
-            </div>
-        );
+        throw error;
     }
 
     return (
-        <div
-            className="font-sans flex items-center justify-center min-h-[calc(100vh-4rem)] bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-            <main className="text-center p-8">
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-12 max-w-md mx-auto">
-                    <h1 className="text-4xl font-bold mb-8 text-gray-800 dark:text-gray-200">
-                        income-viewer-next-js-app
-                    </h1>
-
-                    <div className="mb-8">
-                        {content}
-                    </div>
-
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                        このメッセージはSQLiteデータベースから取得されています
+        <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+            <div className="space-y-8">
+                <div>
+                    <h2 className="mb-3 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">
+                        年別収入の推移
+                    </h2>
+                    <p className="text-sm leading-6 text-gray-600 dark:text-gray-300 sm:text-base">
+                        給与、配当金、その他の税引後収入を年ごとに比較できます。金額は万円単位で表示しています。
                     </p>
-
-                    <div className="text-xs text-gray-400 dark:text-gray-500">
-                        Next.js + TypeScript + Tailwind CSS + SQLite
-                    </div>
                 </div>
-            </main>
-        </div>
+
+                <section
+                    aria-labelledby="income-chart-heading"
+                    className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6"
+                >
+                    <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100" id="income-chart-heading">
+                        収入内訳と年合計
+                    </h3>
+                    <IncomeStackedBarChart incomes={incomes}/>
+                </section>
+
+                <section
+                    aria-labelledby="income-table-heading"
+                    className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6"
+                >
+                    <h3 className="sr-only" id="income-table-heading">年別収入データ</h3>
+                    <IncomeTable incomes={incomes}/>
+                </section>
+            </div>
+        </main>
     );
 }
