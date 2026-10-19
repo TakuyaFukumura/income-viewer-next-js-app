@@ -26,6 +26,8 @@ export default function Header() {
             return '🌙';
         }
     };
+    const nextThemeLabel = displayTheme === 'light' ? 'ダークモード' : 'ライトモード';
+    const currentThemeLabel = displayTheme === 'light' ? 'ライトモード' : 'ダークモード';
 
     return (
         <header
@@ -45,9 +47,11 @@ export default function Header() {
                             className="flex items-center gap-2 px-3 py-2 text-sm font-medium
                             text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700
                             rounded-lg transition-colors duration-200"
-                            title={`現在: ${displayTheme === 'light' ? 'ライトモード' : 'ダークモード'}`}
+                            aria-label={`${nextThemeLabel}に切り替え`}
+                            aria-pressed={displayTheme === 'dark'}
+                            title={`${nextThemeLabel}に切り替え（現在: ${currentThemeLabel}）`}
                         >
-                            <span className="text-lg">{getThemeIcon()}</span>
+                            <span aria-hidden="true" className="text-lg">{getThemeIcon()}</span>
                         </button>
                     </div>
                 </div>
