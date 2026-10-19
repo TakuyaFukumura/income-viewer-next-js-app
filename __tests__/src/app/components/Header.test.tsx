@@ -79,8 +79,9 @@ describe('Header', () => {
         it('ボタンのtitle属性が正しく設定される', () => {
             renderWithProvider('light');
 
-            const button = screen.getByRole('button');
-            expect(button).toHaveAttribute('title', '現在: ライトモード');
+            const button = screen.getByRole('button', {name: 'ダークモードに切り替え'});
+            expect(button).toHaveAttribute('aria-pressed', 'false');
+            expect(button).toHaveAttribute('title', 'ダークモードに切り替え（現在: ライトモード）');
         });
     });
 
@@ -100,9 +101,10 @@ describe('Header', () => {
         it('ボタンのtitle属性が正しく設定される', async () => {
             renderWithProvider('dark');
 
-            const button = screen.getByRole('button');
+            const button = screen.getByRole('button', {name: 'ライトモードに切り替え'});
             await waitFor(() => {
-                expect(button).toHaveAttribute('title', '現在: ダークモード');
+                expect(button).toHaveAttribute('aria-pressed', 'true');
+                expect(button).toHaveAttribute('title', 'ライトモードに切り替え（現在: ダークモード）');
             });
         });
     });
@@ -217,9 +219,8 @@ describe('Header', () => {
 
             const button = screen.getByRole('button');
 
-            // title属性による説明があることを確認
-            expect(button).toHaveAttribute('title');
-            expect(button.getAttribute('title')).toContain('現在:');
+            expect(button).toHaveAccessibleName('ダークモードに切り替え');
+            expect(button).toHaveAttribute('title', expect.stringContaining('現在: ライトモード'));
         });
     });
 
