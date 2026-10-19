@@ -1,70 +1,68 @@
-import {fireEvent, render, screen} from '@testing-library/react';
+import {render, screen} from '@testing-library/react';
 import Home from '../../../src/app/page';
+import {createIncomeRepository} from '../../../lib/income/repositories/createIncomeRepository';
+import {IncomeCsvValidationError, IncomeDataReadError} from '../../../lib/income/types';
 
-const createResponse = (body: unknown, status: number): Response => ({
-    ok: status >= 200 && status < 300,
-    status,
-    json: async () => body,
-} as Response);
+jest.mock('../../../lib/income/repositories/createIncomeRepository', () => ({
+    createIncomeRepository: jest.fn(),
+}));
 
-describe('Home', () => {
+const sampleIncomes = [
+    {year: 2016, salary: 4_000_000, dividends: 120_000, other: 0, total: 4_120_000},
+    {year: 2017, salary: 4_350_000, dividends: 150_000, other: 80_000, total: 4_580_000},
+];
+
+const mockedCreateIncomeRepository = jest.mocked(createIncomeRepository);
+
+describe('Home page', () => {
+    beforeEach(() => {
+        mockedCreateIncomeRepository.mockReset();
+    });
+
     afterEach(() => {
         jest.restoreAllMocks();
     });
 
-    it('型付きのメッセージを表示する', async () => {
-        jest.spyOn(global, 'fetch').mockResolvedValue(
-            createResponse({message: 'テストメッセージ'}, 200)
-        );
-
-        render(<Home/>, {reactStrictMode: false});
-
-        expect(await screen.findByText('テストメッセージ')).toBeInTheDocument();
-    });
-
-    it('APIエラーを表示し、再試行できる', async () => {
-        const fetchMock = jest.spyOn(global, 'fetch')
-            .mockResolvedValueOnce(
-                createResponse({error: '取得に失敗しました'}, 500)
-            )
-            .mockResolvedValueOnce(
-                createResponse({message: '再取得しました'}, 200)
-            );
-
-        render(<Home/>, {reactStrictMode: false});
-
-        expect(await screen.findByText('エラー: 取得に失敗しました')).toBeInTheDocument();
-        const initialCallCount = fetchMock.mock.calls.length;
-        fireEvent.click(screen.getByRole('button', {name: '再試行'}));
-
-        expect(await screen.findByText('再取得しました')).toBeInTheDocument();
-        expect(fetchMock.mock.calls.length).toBeGreaterThan(initialCallCount);
-    });
-
-    it('不正な成功レスポンスをエラーとして扱う', async () => {
-        jest.spyOn(global, 'fetch').mockResolvedValue(
-            createResponse({message: 123}, 200)
-        );
-
-        render(<Home/>, {reactStrictMode: false});
-
-        expect(await screen.findByText('エラー: APIレスポンスの形式が不正です')).toBeInTheDocument();
-    });
-
-    it('アンマウント時に進行中のリクエストを中断する', async () => {
-        let requestSignal: AbortSignal | null | undefined;
-        const pendingRequest = new Promise<Response>(() => {
-            // リクエストが中断されるまで保留する。
-        });
-        jest.spyOn(global, 'fetch').mockImplementation((_input, init) => {
-            requestSignal = init?.signal;
-            return pendingRequest;
+    it('収入の説明、グラフ、同じ値を示す表を表示する', async () => {
+        mockedCreateIncomeRepository.mockReturnValue({
+            getAnnualIncomes: jest.fn().mockResolvedValue(sampleIncomes),
         });
 
-        const {unmount} = render(<Home/>, {reactStrictMode: false});
-        await screen.findByText('読み込み中...');
-        unmount();
+        render(await Home());
 
-        expect(requestSignal?.aborted).toBe(true);
+        expect(screen.getByRole('heading', {name: '年別収入の推移'})).toBeInTheDocument();
+        expect(screen.getByText(/税引後収入/)).toBeInTheDocument();
+        expect(screen.getByRole('group', {name: /年別収入積み上げ棒グラフ/})).toBeInTheDocument();
+        expect(screen.getByRole('table', {name: '年別収入内訳（万円）'})).toBeInTheDocument();
+        expect(screen.getByRole('row', {name: /2016年 400.0万円 12.0万円 0.0万円 412.0万円/}))
+            .toBeInTheDocument();
+    });
+
+    it('CSV検証エラー時はグラフと表を表示せず詳細を通知する', async () => {
+        mockedCreateIncomeRepository.mockReturnValue({
+            getAnnualIncomes: jest.fn().mockRejectedValue(
+                new IncomeCsvValidationError('CSV 2行目の「salary」列: 金額を入力してください。')
+            ),
+        });
+
+        render(await Home());
+
+        expect(screen.getByRole('alert')).toHaveTextContent('CSV 2行目の「salary」列');
+        expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        expect(screen.queryByRole('group', {name: /年別収入積み上げ棒グラフ/})).not.toBeInTheDocument();
+    });
+
+    it('ファイル読み込みエラー時は一般化したエラーを表示する', async () => {
+        const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+        mockedCreateIncomeRepository.mockReturnValue({
+            getAnnualIncomes: jest.fn().mockRejectedValue(new IncomeDataReadError(new Error('private detail'))),
+        });
+
+        render(await Home());
+
+        expect(screen.getByRole('alert')).toHaveTextContent('サンプル収入データを読み込めませんでした。');
+        expect(screen.getByRole('alert')).not.toHaveTextContent('private detail');
+        expect(consoleError).toHaveBeenCalled();
+        consoleError.mockRestore();
     });
 });
