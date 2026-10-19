@@ -71,4 +71,34 @@ describe('IncomeStackedBarChart', () => {
         });
         expect(screen.getByText('41.0万円')).toBeInTheDocument();
     });
+
+    it('横スクロールの案内を表示し、スクロール領域をキーボードでフォーカスできる', async () => {
+        const {container} = render(
+            <IncomeStackedBarChart
+                incomes={[
+                    {year: 2016, salary: 400_000, dividends: 100_000, other: 0, total: 500_000},
+                    {year: 2017, salary: 410_000, dividends: 100_000, other: 0, total: 510_000},
+                ]}
+            />
+        );
+
+        const scrollRegion = screen.getByRole('region', {name: 'グラフを左右にスクロール'});
+        Object.defineProperties(scrollRegion, {
+            clientWidth: {configurable: true, value: 400},
+            scrollWidth: {configurable: true, value: 900},
+        });
+        fireEvent.scroll(scrollRegion);
+
+        expect(await screen.findByText('左右にスクロールして全期間を確認できます')).toBeInTheDocument();
+        await waitFor(() => {
+            expect(container.querySelector('.bg-gradient-to-l')).toBeInTheDocument();
+        });
+        Object.defineProperty(scrollRegion, 'scrollLeft', {configurable: true, value: 100});
+        fireEvent.scroll(scrollRegion);
+        await waitFor(() => {
+            expect(container.querySelector('.bg-gradient-to-r')).toBeInTheDocument();
+        });
+        scrollRegion.focus();
+        expect(scrollRegion).toHaveFocus();
+    });
 });

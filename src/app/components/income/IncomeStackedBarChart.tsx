@@ -1,5 +1,6 @@
 'use client';
 
+import {useEffect, useRef, useState} from 'react';
 import {
     Bar,
     BarChart,
@@ -76,6 +77,8 @@ function IncomeTooltip({active, payload, label}: ChartTooltipProps) {
 }
 
 export default function IncomeStackedBarChart({incomes}: IncomeStackedBarChartProps) {
+    const scrollRegionRef = useRef<HTMLDivElement>(null);
+    const [scrollEdges, setScrollEdges] = useState({left: false, right: false});
     const firstYear = Math.min(...incomes.map((income) => income.year));
     const lastYear = Math.max(...incomes.map((income) => income.year));
     const chartData = incomes.map((income) => ({
@@ -85,6 +88,40 @@ export default function IncomeStackedBarChart({incomes}: IncomeStackedBarChartPr
         other: yenToManYen(income.other),
         total: yenToManYen(income.total),
     }));
+    const hasHorizontalOverflow = scrollEdges.left || scrollEdges.right;
+
+    useEffect(() => {
+        const scrollRegion = scrollRegionRef.current;
+        if (!scrollRegion) {
+            return;
+        }
+
+        const updateScrollEdges = () => {
+            const nextEdges = {
+                left: scrollRegion.scrollLeft > 0,
+                right: scrollRegion.scrollLeft + scrollRegion.clientWidth < scrollRegion.scrollWidth - 1,
+            };
+            setScrollEdges((currentEdges) =>
+                currentEdges.left === nextEdges.left && currentEdges.right === nextEdges.right
+                    ? currentEdges
+                    : nextEdges
+            );
+        };
+
+        updateScrollEdges();
+        scrollRegion.addEventListener('scroll', updateScrollEdges, {passive: true});
+        window.addEventListener('resize', updateScrollEdges);
+        const resizeObserver = typeof ResizeObserver === 'undefined'
+            ? null
+            : new ResizeObserver(updateScrollEdges);
+        resizeObserver?.observe(scrollRegion);
+
+        return () => {
+            scrollRegion.removeEventListener('scroll', updateScrollEdges);
+            window.removeEventListener('resize', updateScrollEdges);
+            resizeObserver?.disconnect();
+        };
+    }, []);
 
     return (
         <div
@@ -96,55 +133,82 @@ export default function IncomeStackedBarChart({incomes}: IncomeStackedBarChartPr
             <p className="sr-only" id="income-chart-description">
                 給与、配当金、その他の手取り収入を万円単位で比較します。グラフ内は矢印キーで移動できます。正確な値は次の表でも確認できます。
             </p>
-            <div className="overflow-x-auto">
-                <div className="min-w-[640px]" style={{height: 360}}>
-                    <ResponsiveContainer height="100%" width="100%">
-                        <BarChart
-                            accessibilityLayer
-                            data={chartData}
-                            margin={{top: 28, right: 20, bottom: 8, left: 12}}
-                        >
-                            <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="3 3" vertical={false}/>
-                            <XAxis
-                                axisLine={{stroke: 'var(--chart-axis)'}}
-                                dataKey="year"
-                                tick={{fill: 'var(--chart-tick)', fontSize: 12}}
-                                tickLine={false}
-                            />
-                            <YAxis
-                                axisLine={false}
-                                label={{angle: -90, fill: 'var(--chart-tick)', position: 'insideLeft', value: '万円'}}
-                                tick={{fill: 'var(--chart-tick)', fontSize: 12}}
-                                tickFormatter={(value) => formatManYenValue(Number(value))}
-                                tickLine={false}
-                                width={52}
-                            />
-                            <Tooltip content={<IncomeTooltip/>}/>
-                            <Legend
-                                formatter={(value) => <span className="text-gray-700 dark:text-gray-300">{value}</span>}
-                                verticalAlign="top"
-                            />
-                            <Bar dataKey="salary" fill={SERIES_COLORS.salary} name="給与" stackId="income"/>
-                            <Bar dataKey="dividends" fill={SERIES_COLORS.dividends} name="配当金" stackId="income"/>
-                            <Bar dataKey="other" fill={SERIES_COLORS.other} name="その他" stackId="income"/>
-                            <Line
-                                dataKey="total"
-                                dot={false}
-                                isAnimationActive={false}
-                                legendType="none"
-                                name="合計"
-                                stroke="transparent"
+            {hasHorizontalOverflow && (
+                <p className="mb-2 text-xs text-gray-600 dark:text-gray-300"
+                   id="income-chart-scroll-instructions">
+                    左右にスクロールして全期間を確認できます
+                </p>
+            )}
+            <div className="relative">
+                <div
+                    aria-describedby={hasHorizontalOverflow ? 'income-chart-scroll-instructions' : undefined}
+                    aria-label="グラフを左右にスクロール"
+                    className="overflow-x-auto focus-visible:rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-700 dark:focus-visible:outline-blue-300"
+                    ref={scrollRegionRef}
+                    role="region"
+                    tabIndex={0}
+                >
+                    <div className="min-w-[640px]" style={{height: 360}}>
+                        <ResponsiveContainer height="100%" width="100%">
+                            <BarChart
+                                accessibilityLayer
+                                data={chartData}
+                                margin={{top: 28, right: 20, bottom: 8, left: 12}}
                             >
-                                <LabelList
-                                    dataKey="total"
-                                    fill="var(--chart-total)"
-                                    formatter={(value) => formatManYenValue(Number(value))}
-                                    position="top"
+                                <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="3 3" vertical={false}/>
+                                <XAxis
+                                    axisLine={{stroke: 'var(--chart-axis)'}}
+                                    dataKey="year"
+                                    tick={{fill: 'var(--chart-tick)', fontSize: 12}}
+                                    tickLine={false}
                                 />
-                            </Line>
-                        </BarChart>
-                    </ResponsiveContainer>
+                                <YAxis
+                                    axisLine={false}
+                                    label={{angle: -90, fill: 'var(--chart-tick)', position: 'insideLeft', value: '万円'}}
+                                    tick={{fill: 'var(--chart-tick)', fontSize: 12}}
+                                    tickFormatter={(value) => formatManYenValue(Number(value))}
+                                    tickLine={false}
+                                    width={52}
+                                />
+                                <Tooltip content={<IncomeTooltip/>}/>
+                                <Legend
+                                    formatter={(value) => <span className="text-gray-700 dark:text-gray-300">{value}</span>}
+                                    verticalAlign="top"
+                                />
+                                <Bar dataKey="salary" fill={SERIES_COLORS.salary} name="給与" stackId="income"/>
+                                <Bar dataKey="dividends" fill={SERIES_COLORS.dividends} name="配当金" stackId="income"/>
+                                <Bar dataKey="other" fill={SERIES_COLORS.other} name="その他" stackId="income"/>
+                                <Line
+                                    dataKey="total"
+                                    dot={false}
+                                    isAnimationActive={false}
+                                    legendType="none"
+                                    name="合計"
+                                    stroke="transparent"
+                                >
+                                    <LabelList
+                                        dataKey="total"
+                                        fill="var(--chart-total)"
+                                        formatter={(value) => formatManYenValue(Number(value))}
+                                        position="top"
+                                    />
+                                </Line>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
                 </div>
+                {scrollEdges.left && (
+                    <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-y-0 left-0 w-5 bg-gradient-to-r from-white to-transparent dark:from-gray-800"
+                    />
+                )}
+                {scrollEdges.right && (
+                    <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-y-0 right-0 w-5 bg-gradient-to-l from-white to-transparent dark:from-gray-800"
+                    />
+                )}
             </div>
         </div>
     );

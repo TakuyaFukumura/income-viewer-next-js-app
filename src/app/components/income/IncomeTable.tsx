@@ -14,7 +14,12 @@ export default function IncomeTable({incomes}: IncomeTableProps) {
                 </caption>
                 <thead>
                 <tr className="border-b border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300">
-                    <th className="px-3 py-3 text-left" scope="col">年</th>
+                    <th
+                        className="sticky left-0 z-20 border-r border-gray-200 bg-white px-3 py-3 text-left dark:border-gray-700 dark:bg-gray-800"
+                        scope="col"
+                    >
+                        年
+                    </th>
                     <th className="px-3 py-3 text-right" scope="col">給与</th>
                     <th className="px-3 py-3 text-right" scope="col">配当金</th>
                     <th className="px-3 py-3 text-right" scope="col">その他</th>
@@ -27,7 +32,10 @@ export default function IncomeTable({incomes}: IncomeTableProps) {
                         className="border-b border-gray-200 text-gray-700 dark:border-gray-700 dark:text-gray-300"
                         key={income.year}
                     >
-                        <th className="px-3 py-3 text-left font-medium" scope="row">
+                        <th
+                            className="sticky left-0 z-10 border-r border-gray-200 bg-white px-3 py-3 text-left font-medium dark:border-gray-700 dark:bg-gray-800"
+                            scope="row"
+                        >
                             {income.year}年
                         </th>
                         <td className="px-3 py-3 text-right tabular-nums">
