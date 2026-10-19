@@ -1,4 +1,5 @@
 import IncomeStackedBarChart from './components/income/IncomeStackedBarChart';
+import IncomeSummary from './components/income/IncomeSummary';
 import IncomeTable from './components/income/IncomeTable';
 import {createIncomeRepository} from '../../lib/income/repositories/createIncomeRepository';
 import {IncomeCsvValidationError, IncomeDataReadError} from '../../lib/income/types';
@@ -53,6 +54,8 @@ export default async function Home() {
                         給与、配当金、その他の税引後収入を年ごとに比較できます。金額は万円単位で表示しています。
                     </p>
                 </div>
+
+                <IncomeSummary incomes={incomes}/>
 
                 <section
                     aria-labelledby="income-chart-heading"
