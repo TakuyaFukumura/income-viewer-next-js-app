@@ -30,7 +30,7 @@ describe('Home page', () => {
 
         render(await Home());
 
-        expect(screen.getByRole('heading', {name: '年別収入の推移'})).toBeInTheDocument();
+        expect(screen.getByRole('heading', {name: '収入推移'})).toBeInTheDocument();
         expect(screen.getByText(/税引後収入/)).toBeInTheDocument();
         expect(screen.getByRole('group', {name: /年別収入積み上げ棒グラフ/})).toBeInTheDocument();
         expect(screen.getByRole('table', {name: '年別収入内訳（万円）'})).toBeInTheDocument();
