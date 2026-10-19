@@ -42,7 +42,8 @@ function IncomeTooltip({active, payload, label}: ChartTooltipProps) {
     }
 
     return (
-        <div className="rounded-lg border border-gray-200 bg-white p-3 text-sm shadow-lg dark:border-gray-600 dark:bg-gray-800">
+        <div
+            className="rounded-lg border border-gray-200 bg-white p-3 text-sm shadow-lg dark:border-gray-600 dark:bg-gray-800">
             <p className="mb-2 font-semibold text-gray-900 dark:text-gray-100">{label}年</p>
             <ul className="space-y-1">
                 {incomePayload.map((entry) => (

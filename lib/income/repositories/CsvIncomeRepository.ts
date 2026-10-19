@@ -5,7 +5,8 @@ import {IncomeDataReadError} from '../types';
 import {IncomeRepository} from './IncomeRepository';
 
 export class CsvIncomeRepository implements IncomeRepository {
-    constructor(private readonly csvPath = path.join(process.cwd(), 'data', 'income.csv')) {}
+    constructor(private readonly csvPath = path.join(process.cwd(), 'data', 'income.csv')) {
+    }
 
     async getAnnualIncomes() {
         let csv: string;

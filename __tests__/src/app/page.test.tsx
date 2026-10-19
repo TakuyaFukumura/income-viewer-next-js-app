@@ -30,7 +30,7 @@ describe('Home page', () => {
 
         render(await Home());
 
-        expect(screen.getByRole('heading', {name: '年別収入の推移'})).toBeInTheDocument();
+        expect(screen.getByRole('heading', {name: '収入推移'})).toBeInTheDocument();
         expect(screen.getByText(/税引後収入/)).toBeInTheDocument();
         expect(screen.getByRole('group', {name: /年別収入積み上げ棒グラフ/})).toBeInTheDocument();
         expect(screen.getByRole('table', {name: '年別収入内訳（万円）'})).toBeInTheDocument();
@@ -53,7 +53,8 @@ describe('Home page', () => {
     });
 
     it('ファイル読み込みエラー時は一般化したエラーを表示する', async () => {
-        const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {
+        });
         mockedCreateIncomeRepository.mockReturnValue({
             getAnnualIncomes: jest.fn().mockRejectedValue(new IncomeDataReadError(new Error('private detail'))),
         });

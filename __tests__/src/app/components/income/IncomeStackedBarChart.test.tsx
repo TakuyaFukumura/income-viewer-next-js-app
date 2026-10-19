@@ -2,7 +2,8 @@ import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
 import IncomeStackedBarChart from '../../../../../src/app/components/income/IncomeStackedBarChart';
 
 class TestResizeObserver {
-    constructor(private readonly callback: ResizeObserverCallback) {}
+    constructor(private readonly callback: ResizeObserverCallback) {
+    }
 
     observe(target: Element) {
         const contentRect = {
@@ -26,9 +27,11 @@ class TestResizeObserver {
         }], this as ResizeObserver);
     }
 
-    unobserve() {}
+    unobserve() {
+    }
 
-    disconnect() {}
+    disconnect() {
+    }
 }
 
 describe('IncomeStackedBarChart', () => {

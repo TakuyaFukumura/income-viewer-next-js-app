@@ -44,7 +44,7 @@ describe('Header', () => {
         it('ヘッダータイトルが表示される', () => {
             renderWithProvider();
 
-            expect(screen.getByText('income-viewer-next-js-app')).toBeInTheDocument();
+            expect(screen.getByText('income-viewer')).toBeInTheDocument();
         });
 
         it('ヘッダーのHTML構造が正しい', () => {

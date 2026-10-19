@@ -5,6 +5,13 @@
 フォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/) に基づいており、
 このプロジェクトは [Semantic Versioning](https://semver.org/lang/ja/) に従っています。
 
+## [0.2.1] - 2026-10-19
+
+### 変更
+
+- ヘッダーのアプリ名を `income-viewer` に、ページ見出しを「収入推移」に変更
+- 互換性を保てる範囲で推移依存パッケージを更新
+
 ## [0.2.0] - 2026-10-19
 
 ### 追加
