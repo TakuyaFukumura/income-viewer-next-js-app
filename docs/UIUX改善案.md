@@ -34,6 +34,13 @@
 | 5 | P2: テーマ切り替えとダークモード | 完了 |
 | 6 | P2: サンプルデータ・エラー説明 | 完了 |
 
+### 検証結果（2026-10-19）
+
+- `npm test -- --runInBand`: 8 suites, 59 tests passed
+- `npm run lint`: passed
+- `npx tsc --noEmit`: passed
+- `npm run build`: passed
+
 ## 4. 改善提案
 
 決定ログに記載した内容は決定済みの方針である。それ以外の提案は、実装前に必要性を確認する追加検討事項として扱う。
