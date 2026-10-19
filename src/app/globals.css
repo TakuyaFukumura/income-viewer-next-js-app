@@ -2,6 +2,26 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+:root {
+    --chart-grid: #d1d5db;
+    --chart-axis: #6b7280;
+    --chart-tick: #4b5563;
+    --chart-total: #111827;
+    --income-salary: #2563eb;
+    --income-dividends: #059669;
+    --income-other: #9333ea;
+}
+
+.dark {
+    --chart-grid: #4b5563;
+    --chart-axis: #9ca3af;
+    --chart-tick: #d1d5db;
+    --chart-total: #f3f4f6;
+    --income-salary: #60a5fa;
+    --income-dividends: #34d399;
+    --income-other: #c084fc;
+}
+
 body {
     background: #ffffff;
     color: #171717;

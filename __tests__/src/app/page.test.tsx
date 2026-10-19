@@ -32,6 +32,8 @@ describe('Home page', () => {
 
         expect(screen.getByRole('heading', {name: '収入推移'})).toBeInTheDocument();
         expect(screen.getByText(/税引後収入/)).toBeInTheDocument();
+        expect(screen.getByText('棒の高さは年ごとの合計、色分けは収入区分を示します。')).toBeInTheDocument();
+        expect(screen.getByRole('link', {name: '数値を表で見る'})).toHaveAttribute('href', '#income-table');
         expect(screen.getByRole('group', {name: /年別収入積み上げ棒グラフ/})).toBeInTheDocument();
         expect(screen.getByRole('table', {name: '年別収入内訳（万円）'})).toBeInTheDocument();
         expect(screen.getByRole('row', {name: /2016年 400.0万円 12.0万円 0.0万円 412.0万円/}))

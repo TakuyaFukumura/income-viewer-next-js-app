@@ -30,13 +30,14 @@ interface ChartTooltipProps {
 }
 
 const SERIES_COLORS = {
-    salary: '#2563eb',
-    dividends: '#059669',
-    other: '#9333ea',
+    salary: 'var(--income-salary)',
+    dividends: 'var(--income-dividends)',
+    other: 'var(--income-other)',
 };
 
 function IncomeTooltip({active, payload, label}: ChartTooltipProps) {
     const incomePayload = payload?.filter((entry) => entry.name !== '合計');
+    const totalPayload = payload?.find((entry) => entry.name === '合計');
     if (!active || !incomePayload?.length) {
         return null;
     }
@@ -61,12 +62,22 @@ function IncomeTooltip({active, payload, label}: ChartTooltipProps) {
                         </span>
                     </li>
                 ))}
+                {totalPayload && (
+                    <li className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 font-semibold dark:border-gray-600">
+                        <span className="text-gray-900 dark:text-gray-100">合計</span>
+                        <span className="tabular-nums text-gray-900 dark:text-gray-100">
+                            {formatManYen(Number(totalPayload.value))}
+                        </span>
+                    </li>
+                )}
             </ul>
         </div>
     );
 }
 
 export default function IncomeStackedBarChart({incomes}: IncomeStackedBarChartProps) {
+    const firstYear = Math.min(...incomes.map((income) => income.year));
+    const lastYear = Math.max(...incomes.map((income) => income.year));
     const chartData = incomes.map((income) => ({
         year: income.year,
         salary: yenToManYen(income.salary),
@@ -78,7 +89,7 @@ export default function IncomeStackedBarChart({incomes}: IncomeStackedBarChartPr
     return (
         <div
             aria-describedby="income-chart-description"
-            aria-label="2016年から2025年までの年別収入積み上げ棒グラフ"
+            aria-label={`${firstYear}年から${lastYear}年までの年別収入積み上げ棒グラフ`}
             className="focus-within:rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-600"
             role="group"
         >
@@ -93,17 +104,17 @@ export default function IncomeStackedBarChart({incomes}: IncomeStackedBarChartPr
                             data={chartData}
                             margin={{top: 28, right: 20, bottom: 8, left: 12}}
                         >
-                            <CartesianGrid stroke="#d1d5db" strokeDasharray="3 3" vertical={false}/>
+                            <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="3 3" vertical={false}/>
                             <XAxis
-                                axisLine={{stroke: '#6b7280'}}
+                                axisLine={{stroke: 'var(--chart-axis)'}}
                                 dataKey="year"
-                                tick={{fill: '#4b5563', fontSize: 12}}
+                                tick={{fill: 'var(--chart-tick)', fontSize: 12}}
                                 tickLine={false}
                             />
                             <YAxis
                                 axisLine={false}
-                                label={{angle: -90, fill: '#4b5563', position: 'insideLeft', value: '万円'}}
-                                tick={{fill: '#4b5563', fontSize: 12}}
+                                label={{angle: -90, fill: 'var(--chart-tick)', position: 'insideLeft', value: '万円'}}
+                                tick={{fill: 'var(--chart-tick)', fontSize: 12}}
                                 tickFormatter={(value) => formatManYenValue(Number(value))}
                                 tickLine={false}
                                 width={52}
@@ -126,8 +137,8 @@ export default function IncomeStackedBarChart({incomes}: IncomeStackedBarChartPr
                             >
                                 <LabelList
                                     dataKey="total"
-                                    className="fill-gray-900 dark:fill-gray-100"
-                                    formatter={(value) => formatManYen(Number(value))}
+                                    fill="var(--chart-total)"
+                                    formatter={(value) => formatManYenValue(Number(value))}
                                     position="top"
                                 />
                             </Line>

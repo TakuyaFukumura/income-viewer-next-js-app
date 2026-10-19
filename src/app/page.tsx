@@ -65,12 +65,22 @@ export default async function Home() {
                         id="income-chart-heading">
                         収入内訳と年合計
                     </h3>
+                    <p className="mb-4 text-sm leading-6 text-gray-600 dark:text-gray-300">
+                        棒の高さは年ごとの合計、色分けは収入区分を示します。
+                    </p>
                     <IncomeStackedBarChart incomes={incomes}/>
+                    <a
+                        className="mt-4 inline-flex rounded text-sm font-medium text-blue-700 underline underline-offset-4 hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-blue-300 dark:hover:text-blue-200 dark:focus-visible:outline-blue-300"
+                        href="#income-table"
+                    >
+                        数値を表で見る
+                    </a>
                 </section>
 
                 <section
                     aria-labelledby="income-table-heading"
                     className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6"
+                    id="income-table"
                 >
                     <h3 className="sr-only" id="income-table-heading">年別収入データ</h3>
                     <IncomeTable incomes={incomes}/>

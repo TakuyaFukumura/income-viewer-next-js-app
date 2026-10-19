@@ -58,7 +58,7 @@ describe('IncomeStackedBarChart', () => {
         expect(await screen.findByText('給与')).toBeInTheDocument();
         expect(screen.getByText('配当金')).toBeInTheDocument();
         expect(screen.getByText('その他')).toBeInTheDocument();
-        expect(screen.getByText('50.0万円')).toBeInTheDocument();
+        expect(screen.getByText('50.0')).toBeInTheDocument();
 
         const chart = await screen.findByRole('application');
         act(() => {
