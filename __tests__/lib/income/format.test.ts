@@ -1,9 +1,4 @@
-import {
-    formatManYen,
-    formatManYenValue,
-    formatYenAsManYen,
-    yenToManYen,
-} from '../../../lib/income/format';
+import {formatManYen, formatManYenValue, formatYenAsManYen, yenToManYen,} from '../../../lib/income/format';
 
 describe('income format helpers', () => {
     it('円を万円に変換する', () => {

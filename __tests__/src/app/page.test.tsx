@@ -53,7 +53,8 @@ describe('Home page', () => {
     });
 
     it('ファイル読み込みエラー時は一般化したエラーを表示する', async () => {
-        const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {
+        });
         mockedCreateIncomeRepository.mockReturnValue({
             getAnnualIncomes: jest.fn().mockRejectedValue(new IncomeDataReadError(new Error('private detail'))),
         });
