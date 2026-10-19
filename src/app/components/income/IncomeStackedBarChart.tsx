@@ -36,7 +36,7 @@ const SERIES_COLORS = {
     other: 'var(--income-other)',
 };
 
-function IncomeTooltip({active, payload, label}: ChartTooltipProps) {
+export function IncomeTooltip({active, payload, label}: ChartTooltipProps) {
     const incomePayload = payload?.filter((entry) => entry.name !== '合計');
     const totalPayload = payload?.find((entry) => entry.name === '合計');
     if (!active || !incomePayload?.length) {

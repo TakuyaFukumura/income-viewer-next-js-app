@@ -47,6 +47,8 @@ describe('Home page', () => {
         yearCell.focus();
         expect(yearCell).toHaveFocus();
         expect(yearCell).toHaveClass('sticky', 'left-0');
+        expect(firstRow).toHaveClass('focus-within:bg-blue-50');
+        expect(within(firstRow).getByRole('cell', {name: '412.0万円'})).toHaveClass('bg-gray-50');
     });
 
     it('CSV検証エラー時はグラフと表を表示せず詳細を通知する', async () => {

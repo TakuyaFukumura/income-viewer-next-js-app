@@ -1,5 +1,5 @@
 import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
-import IncomeStackedBarChart from '../../../../../src/app/components/income/IncomeStackedBarChart';
+import IncomeStackedBarChart, {IncomeTooltip} from '../../../../../src/app/components/income/IncomeStackedBarChart';
 
 class TestResizeObserver {
     constructor(private readonly callback: ResizeObserverCallback) {
@@ -43,6 +43,25 @@ describe('IncomeStackedBarChart', () => {
 
     afterEach(() => {
         globalThis.ResizeObserver = originalResizeObserver;
+    });
+
+    it('ツールチップに収入区分と合計を表示する', () => {
+        render(
+            <IncomeTooltip
+                active
+                label={2016}
+                payload={[
+                    {name: '給与', value: 40, color: '#2563eb'},
+                    {name: '配当金', value: 10, color: '#059669'},
+                    {name: 'その他', value: 0, color: '#9333ea'},
+                    {name: '合計', value: 50},
+                ]}
+            />
+        );
+
+        expect(screen.getByText('2016年')).toBeInTheDocument();
+        expect(screen.getByText('合計')).toBeInTheDocument();
+        expect(screen.getByText('50.0万円')).toBeInTheDocument();
     });
 
     it('3系列、年合計ラベルを表示し、キーボードで年を移動できる', async () => {
