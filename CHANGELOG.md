@@ -5,6 +5,12 @@
 フォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/) に基づいており、
 このプロジェクトは [Semantic Versioning](https://semver.org/lang/ja/) に従っています。
 
+## [0.3.3] - 2026-10-20
+
+### 追加
+
+- 年別表に給与・配当金・その他それぞれの収入構成比を追加
+
 ## [0.3.2] - 2026-10-20
 
 ### 変更
