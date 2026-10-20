@@ -57,6 +57,8 @@ npx tsc --noEmit
 npm run build
 ```
 
+SonarQubeのローカル解析結果と再解析手順は[こちら](docs/sonarqube-analysis.md)を参照してください。
+
 ## 主なファイル
 
 ```text

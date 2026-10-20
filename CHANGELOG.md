@@ -5,6 +5,14 @@
 フォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/) に基づいており、
 このプロジェクトは [Semantic Versioning](https://semver.org/lang/ja/) に従っています。
 
+## [0.3.1] - 2026-10-20
+
+### 変更
+
+- 収入サマリーとCSV解析の検証処理を整理し、空入力時の安全性とテストを強化
+- グラフのアクセシビリティを維持しながらLegendの非推奨APIを置き換え
+- SonarQube解析ドキュメントを削除
+
 ## [0.3.0] - 2026-10-19
 
 ### 追加

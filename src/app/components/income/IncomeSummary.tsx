@@ -2,7 +2,15 @@ import {AnnualIncome} from '../../../../lib/income/types';
 import {formatYenAsManYen} from '../../../../lib/income/format';
 
 interface IncomeSummaryProps {
-    incomes: AnnualIncome[];
+    readonly incomes: readonly AnnualIncome[];
+}
+
+interface IncomeChangeDetails {
+    difference: number | null;
+    percentageChange: string | null;
+    changeDescription: string;
+    changeColor: string;
+    signedDifference: string | null;
 }
 
 const percentageFormatter = new Intl.NumberFormat('ja-JP', {
@@ -10,37 +18,70 @@ const percentageFormatter = new Intl.NumberFormat('ja-JP', {
     maximumFractionDigits: 1,
 });
 
+function getChangeDescription(difference: number | null): string {
+    if (difference === null) {
+        return '前年データがありません';
+    }
+    if (difference > 0) {
+        return '増加';
+    }
+    if (difference < 0) {
+        return '減少';
+    }
+    return '変化なし';
+}
+
+function getChangeColor(difference: number | null): string {
+    if (difference === null || difference === 0) {
+        return 'text-gray-700 dark:text-gray-200';
+    }
+    if (difference > 0) {
+        return 'text-emerald-700 dark:text-emerald-300';
+    }
+    return 'text-rose-700 dark:text-rose-300';
+}
+
+function getSignedDifference(difference: number | null): string | null {
+    if (difference === null) {
+        return null;
+    }
+    const formattedDifference = formatYenAsManYen(difference);
+    return difference > 0 ? `+${formattedDifference}` : formattedDifference;
+}
+
+function getIncomeChangeDetails(
+    latestIncome: AnnualIncome,
+    previousIncome: AnnualIncome | undefined
+): IncomeChangeDetails {
+    const difference = previousIncome ? latestIncome.total - previousIncome.total : null;
+    const percentageChange = previousIncome && previousIncome.total > 0 && difference !== null
+        ? percentageFormatter.format((difference / previousIncome.total) * 100)
+        : null;
+
+    return {
+        difference,
+        percentageChange,
+        changeDescription: getChangeDescription(difference),
+        changeColor: getChangeColor(difference),
+        signedDifference: getSignedDifference(difference),
+    };
+}
+
 export default function IncomeSummary({incomes}: IncomeSummaryProps) {
     if (incomes.length === 0) {
         throw new Error('収入データがありません。');
     }
 
-    const latestIncome = incomes.reduce((latest, income) => income.year > latest.year ? income : latest);
+    const latestIncome = incomes.reduce(
+        (latest, income) => income.year > latest.year ? income : latest,
+        incomes[0]
+    );
     const previousIncome = incomes.find((income) => income.year === latestIncome.year - 1);
     const periodStart = Math.min(...incomes.map((income) => income.year));
     const periodEnd = Math.max(...incomes.map((income) => income.year));
     const periodTotal = incomes.reduce((total, income) => total + income.total, 0);
-    const difference = previousIncome ? latestIncome.total - previousIncome.total : null;
-    const percentageChange = previousIncome && previousIncome.total > 0 && difference !== null
-        ? percentageFormatter.format((difference / previousIncome.total) * 100)
-        : null;
-    const changeDescription = difference === null
-        ? '前年データがありません'
-        : difference > 0
-            ? '増加'
-            : difference < 0
-                ? '減少'
-                : '変化なし';
-    const changeColor = difference === null || difference === 0
-        ? 'text-gray-700 dark:text-gray-200'
-        : difference > 0
-            ? 'text-emerald-700 dark:text-emerald-300'
-            : 'text-rose-700 dark:text-rose-300';
-    const signedDifference = difference !== null && difference > 0
-        ? `+${formatYenAsManYen(difference)}`
-        : difference !== null
-            ? formatYenAsManYen(difference)
-            : null;
+    const {difference, percentageChange, changeDescription, changeColor, signedDifference} =
+        getIncomeChangeDetails(latestIncome, previousIncome);
 
     return (
         <section aria-label="収入の概要">
