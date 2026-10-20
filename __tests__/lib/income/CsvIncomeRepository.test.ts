@@ -16,7 +16,7 @@ describe('CsvIncomeRepository', () => {
         expect(incomes[6]).toMatchObject({year: 2022, dividends: 110_570});
         expect(incomes[7]).toMatchObject({year: 2023, dividends: 258_490});
         expect(incomes[8]).toMatchObject({year: 2024, dividends: 312_859});
-        expect(incomes[9]).toMatchObject({year: 2025, dividends: 365_370});
+        expect(incomes[9]).toMatchObject({year: 2025, salary: 2_804_800, dividends: 365_370});
     });
 
     it('CSVを読み込めない場合に型付きエラーを返す', async () => {
