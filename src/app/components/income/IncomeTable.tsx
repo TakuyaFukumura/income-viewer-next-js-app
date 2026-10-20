@@ -5,12 +5,25 @@ interface IncomeTableProps {
     readonly incomes: readonly AnnualIncome[];
 }
 
+const percentageFormatter = new Intl.NumberFormat('ja-JP', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+});
+
+function formatIncomeShare(amount: number, total: number): string {
+    if (total === 0) {
+        return '構成比: 算出不可';
+    }
+
+    return `構成比: ${percentageFormatter.format((amount / total) * 100)}%`;
+}
+
 export default function IncomeTable({incomes}: IncomeTableProps) {
     return (
         <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] border-collapse text-sm">
                 <caption className="mb-3 text-left text-base font-semibold text-gray-800 dark:text-gray-200">
-                    年別収入内訳（万円・税引後）
+                    年別収入内訳（万円・税引後、各区分の構成比）
                 </caption>
                 <thead>
                 <tr className="border-b border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300">
@@ -43,13 +56,22 @@ export default function IncomeTable({incomes}: IncomeTableProps) {
                             {income.year}年
                         </th>
                         <td className="whitespace-nowrap px-3 py-3 text-right tabular-nums">
-                            {formatYenAsManYen(income.salary)}
+                            <p>{formatYenAsManYen(income.salary)}</p>
+                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                {formatIncomeShare(income.salary, income.total)}
+                            </p>
                         </td>
                         <td className="whitespace-nowrap px-3 py-3 text-right tabular-nums">
-                            {formatYenAsManYen(income.dividends)}
+                            <p>{formatYenAsManYen(income.dividends)}</p>
+                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                {formatIncomeShare(income.dividends, income.total)}
+                            </p>
                         </td>
                         <td className="whitespace-nowrap px-3 py-3 text-right tabular-nums">
-                            {formatYenAsManYen(income.other)}
+                            <p>{formatYenAsManYen(income.other)}</p>
+                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                {formatIncomeShare(income.other, income.total)}
+                            </p>
                         </td>
                         <td className="whitespace-nowrap bg-gray-50 px-3 py-3 text-right font-semibold tabular-nums group-hover:bg-gray-100 group-focus-within:bg-blue-50 dark:bg-gray-700 dark:group-hover:bg-gray-700 dark:group-focus-within:bg-blue-950">
                             {formatYenAsManYen(income.total)}
