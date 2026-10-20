@@ -8,6 +8,10 @@ describe('IncomeSummary', () => {
         {year: 2017, salary: 4_350_000, dividends: 150_000, other: 80_000, total: 4_580_000},
     ];
 
+    it('rejects an empty income list before calculating the latest income', () => {
+        expect(() => render(<IncomeSummary incomes={[]}/>)).toThrow('収入データがありません。');
+    });
+
     it('period, unit and three summary metrics reflect the supplied incomes', () => {
         render(<IncomeSummary incomes={incomes}/>);
 

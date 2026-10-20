@@ -76,3 +76,20 @@ docker run --rm `
 docker stop income-viewer-sonarqube
 docker rm income-viewer-sonarqube
 ```
+
+## 対応進捗
+
+対応候補は優先度の目安に沿って順番に確認します。各項目は、実装・既存テストまたは追加テストによる確認が済んだ時点で完了にします。
+
+| 順序 | 対応項目 | 状態 |
+| --- | --- | --- |
+| 1 | `IncomeSummary` の複雑度、`reduce()` の初期値、入れ子の三項演算子 | 完了（対象テスト4件成功） |
+| 2 | CSV解析関数の複雑度とOptional chaining | 完了（対象テスト16件成功） |
+| 3 | グラフのARIAロール、スクロール領域、キーボード操作 | 確認済み（役割・フォーカス制御とキーボード操作をテスト。スクリーンリーダー実機確認は未実施） |
+| 4 | Legend formatter と Recharts の非推奨 `verticalAlign` | 完了（グラフテスト3件成功） |
+| 5 | コンポーネントPropsの読み取り専用化 | 完了（対象コンポーネント・Tooltip Propsをreadonly化） |
+| 6 | 関連テスト・Lint・型チェックによる最終確認 | 完了（テスト60件成功、Lintエラーなし、型チェック成功） |
+
+最終確認には `npm test -- --runInBand`、`npm run lint`、`npx tsc --noEmit` を使用しました。Lintには生成済み `coverage/lcov-report/block-navigation.js` の未使用 `eslint-disable` 警告が1件ありますが、エラーはありません。
+
+対応後のSonarQube再解析は未実施です。再解析にはSonarQubeコンテナと `SONAR_TOKEN` が必要ですが、確認時点ではどちらも用意されていません。上記の実行概要と指摘件数は対応前の解析結果です。

@@ -2,7 +2,7 @@ import {AnnualIncome} from '../../../../lib/income/types';
 import {formatYenAsManYen} from '../../../../lib/income/format';
 
 interface IncomeTableProps {
-    incomes: AnnualIncome[];
+    readonly incomes: readonly AnnualIncome[];
 }
 
 export default function IncomeTable({incomes}: IncomeTableProps) {

@@ -74,6 +74,9 @@ describe('IncomeStackedBarChart', () => {
             />
         );
 
+        expect(screen.getByRole('group', {
+            name: '2016年から2017年までの年別収入積み上げ棒グラフ',
+        })).toHaveAttribute('aria-describedby', 'income-chart-description');
         expect(await screen.findByText('給与')).toBeInTheDocument();
         expect(screen.getByText('配当金')).toBeInTheDocument();
         expect(screen.getByText('その他')).toBeInTheDocument();
@@ -102,6 +105,7 @@ describe('IncomeStackedBarChart', () => {
         );
 
         const scrollRegion = screen.getByRole('region', {name: 'グラフを左右にスクロール'});
+        expect(scrollRegion).toHaveAttribute('tabindex', '0');
         Object.defineProperties(scrollRegion, {
             clientWidth: {configurable: true, value: 400},
             scrollWidth: {configurable: true, value: 900},

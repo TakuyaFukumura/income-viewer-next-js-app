@@ -17,17 +17,17 @@ import {AnnualIncome} from '../../../../lib/income/types';
 import {formatManYen, formatManYenValue, yenToManYen} from '../../../../lib/income/format';
 
 interface IncomeStackedBarChartProps {
-    incomes: AnnualIncome[];
+    readonly incomes: readonly AnnualIncome[];
 }
 
 interface ChartTooltipProps {
-    active?: boolean;
-    payload?: Array<{
-        color?: string;
-        name?: string | number;
-        value?: number | string;
+    readonly active?: boolean;
+    readonly payload?: ReadonlyArray<{
+        readonly color?: string;
+        readonly name?: string | number;
+        readonly value?: number | string;
     }>;
-    label?: number | string;
+    readonly label?: number | string;
 }
 
 const SERIES_COLORS = {
@@ -35,6 +35,10 @@ const SERIES_COLORS = {
     dividends: 'var(--income-dividends)',
     other: 'var(--income-other)',
 };
+
+function formatLegendLabel(value: string | number) {
+    return <span className="text-gray-700 dark:text-gray-300">{value}</span>;
+}
 
 export function IncomeTooltip({active, payload, label}: ChartTooltipProps) {
     const incomePayload = payload?.filter((entry) => entry.name !== '合計');
@@ -172,8 +176,8 @@ export default function IncomeStackedBarChart({incomes}: IncomeStackedBarChartPr
                                 />
                                 <Tooltip content={<IncomeTooltip/>}/>
                                 <Legend
-                                    formatter={(value) => <span className="text-gray-700 dark:text-gray-300">{value}</span>}
-                                    verticalAlign="top"
+                                    formatter={formatLegendLabel}
+                                    position="top"
                                 />
                                 <Bar dataKey="salary" fill={SERIES_COLORS.salary} name="給与" stackId="income"/>
                                 <Bar dataKey="dividends" fill={SERIES_COLORS.dividends} name="配当金" stackId="income"/>
