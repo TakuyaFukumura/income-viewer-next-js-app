@@ -7,6 +7,7 @@ describe('CsvIncomeRepository', () => {
         const incomes = await new CsvIncomeRepository().getAnnualIncomes();
 
         expect(incomes).toHaveLength(10);
+        expect(incomes.map(({other}) => other)).toEqual(Array(10).fill(0));
         expect(incomes[0]).toMatchObject({year: 2016, salary: 400_000, dividends: 0});
         expect(incomes[1]).toMatchObject({year: 2017, salary: 400_000, dividends: 0});
         expect(incomes[2]).toMatchObject({year: 2018, salary: 400_000, dividends: 0});
