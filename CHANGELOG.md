@@ -5,6 +5,12 @@
 フォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/) に基づいており、
 このプロジェクトは [Semantic Versioning](https://semver.org/lang/ja/) に従っています。
 
+## [0.3.2] - 2026-10-20
+
+### 変更
+
+- 2016年から2025年までのサンプル収入データを更新
+
 ## [0.3.1] - 2026-10-20
 
 ### 変更
