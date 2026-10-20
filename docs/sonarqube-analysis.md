@@ -1,8 +1,28 @@
 # SonarQube解析結果
 
-## 実行概要
+## 対応後の再解析（2026年10月20日）
 
-2026年10月20日に、Docker上のSonarQube Community Buildで解析しました。
+対応後にDocker上で再解析しました。Quality GateはOKで、未解決Issueはキーボード操作を維持するため意図的に残したスクロール領域のCode Smell 1件です。
+
+| 項目 | 結果 |
+| --- | --- |
+| SonarQube | Community Build 26.10.0.133078 |
+| SonarScanner | CLI 8.1.0.6389（Dockerイメージ `sonarsource/sonar-scanner-cli:latest`） |
+| 対象 | `src/`、`lib/` |
+| テスト | 8スイート、60件すべて成功 |
+| テストカバレッジ | 87.1%（SonarQube計測値） |
+| 重複行率 | 0.0% |
+| Quality Gate | OK |
+| 未解決Issue | 1件（Major Code Smell 1件） |
+| 脆弱性 / Security Hotspot | 0件 / 0件 |
+
+残る指摘は `src/app/components/income/IncomeStackedBarChart.tsx:153` の `typescript:S6845`（「`tabIndex` should only be declared on interactive elements.」）です。該当要素はアクセシブルな名前を持つ `role="region"` の横スクロール領域です。`tabIndex={0}` を外すとキーボード利用者がスクロール領域へフォーカスできなくなるため、アクセシビリティを優先して維持しています。テストでは名前付き領域、フォーカス可能性、グラフのキーボード操作を確認しています。スクリーンリーダー実機での確認は未実施です。
+
+脆弱性検出が0件であることは、セキュリティ監査全般で問題がないことを保証するものではありません。
+
+## 初回解析概要（対応前）
+
+以下は対応前の基準値です。
 
 | 項目 | 結果 |
 | --- | --- |
@@ -18,7 +38,7 @@
 
 テストは8スイート、59件すべて成功しました。SonarQubeの脆弱性検出が0件であることは、セキュリティ監査全般で問題がないことを保証するものではありません。
 
-## 対応候補
+## 初回解析の対応候補（対応前）
 
 SonarQubeの重大度はルール上の分類です。特に `CRITICAL` はコードスメルの重大度であり、脆弱性や実行時障害を意味しません。動作への影響と現在の入力制約を確認してから対応してください。
 
@@ -48,33 +68,39 @@ SonarQubeの重大度はルール上の分類です。特に `CRITICAL` はコ�
 Docker Desktopを起動し、リポジトリのルートで実行します。初回起動後にSonarQubeへログインして管理者パスワードを設定し、解析用トークンを発行してください。トークンはリポジトリに保存せず、環境変数で渡します。
 
 ```powershell
-docker run --detach --name income-viewer-sonarqube --publish 9000:9000 sonarqube:community
+docker network create income-viewer-sonar-net
+docker run --detach `
+  --name income-viewer-sonarqube `
+  --network income-viewer-sonar-net `
+  --network-alias sonarqube `
+  --publish 127.0.0.1:9000:9000 `
+  sonarqube:community
 # http://localhost:9000 が利用可能になったら、SonarQubeで解析用トークンを発行
 $env:SONAR_TOKEN = "<SonarQubeで発行したトークン>"
 
 npm test -- --coverage --runInBand
 
 docker run --rm `
+  --network income-viewer-sonar-net `
   --volume "${PWD}:/usr/src" `
   --workdir /usr/src `
   --env SONAR_TOKEN `
-  --add-host host.docker.internal:host-gateway `
   sonarsource/sonar-scanner-cli:latest `
-  -Dsonar.host.url=http://host.docker.internal:9000 `
-  -Dsonar.projectKey=income-viewer-next-js-app `
-  -Dsonar.projectName=income-viewer-next-js-app `
-  -Dsonar.sources=src,lib `
-  -Dsonar.tests=__tests__ `
-  -Dsonar.test.inclusions=**/*.test.ts,**/*.test.tsx `
-  -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info `
-  -Dsonar.sourceEncoding=UTF-8
+  '-Dsonar.host.url=http://sonarqube:9000' `
+  '-Dsonar.projectKey=income-viewer-next-js-app' `
+  '-Dsonar.projectName=income-viewer-next-js-app' `
+  '-Dsonar.sources=src,lib' `
+  '-Dsonar.tests=__tests__' `
+  '-Dsonar.test.inclusions=**/*.test.ts,**/*.test.tsx' `
+  '-Dsonar.javascript.lcov.reportPaths=coverage/lcov.info' `
+  '-Dsonar.sourceEncoding=UTF-8'
 ```
 
 解析後は `http://localhost:9000/dashboard?id=income-viewer-next-js-app` で結果を確認できます。終了時は必要に応じてコンテナを停止・削除します。
 
 ```powershell
-docker stop income-viewer-sonarqube
-docker rm income-viewer-sonarqube
+docker rm --force income-viewer-sonarqube
+docker network rm income-viewer-sonar-net
 ```
 
 ## 対応進捗
@@ -85,11 +111,9 @@ docker rm income-viewer-sonarqube
 | --- | --- | --- |
 | 1 | `IncomeSummary` の複雑度、`reduce()` の初期値、入れ子の三項演算子 | 完了（対象テスト4件成功） |
 | 2 | CSV解析関数の複雑度とOptional chaining | 完了（対象テスト16件成功） |
-| 3 | グラフのARIAロール、スクロール領域、キーボード操作 | 確認済み（役割・フォーカス制御とキーボード操作をテスト。スクリーンリーダー実機確認は未実施） |
+| 3 | グラフのARIAロール、スクロール領域、キーボード操作 | 確認済み（残るS6845はキーボードスクロールを守るため意図的に維持。実機確認は未実施） |
 | 4 | Legend formatter と Recharts の非推奨 `verticalAlign` | 完了（グラフテスト3件成功） |
 | 5 | コンポーネントPropsの読み取り専用化 | 完了（対象コンポーネント・Tooltip Propsをreadonly化） |
-| 6 | 関連テスト・Lint・型チェックによる最終確認 | 完了（テスト60件成功、Lintエラーなし、型チェック成功） |
+| 6 | 関連テスト・Lint・型チェック・SonarQube再解析による最終確認 | 完了（テスト60件成功、Quality Gate OK） |
 
-最終確認には `npm test -- --runInBand`、`npm run lint`、`npx tsc --noEmit` を使用しました。Lintには生成済み `coverage/lcov-report/block-navigation.js` の未使用 `eslint-disable` 警告が1件ありますが、エラーはありません。
-
-対応後のSonarQube再解析は未実施です。再解析にはSonarQubeコンテナと `SONAR_TOKEN` が必要ですが、確認時点ではどちらも用意されていません。上記の実行概要と指摘件数は対応前の解析結果です。
+最終確認には `npm test -- --coverage --runInBand`（8スイート、60件成功）、`npm run lint`（エラーなし。生成済み `coverage/lcov-report/block-navigation.js` に警告1件）、`npx tsc --noEmit` を使用しました。再解析はローカルの一時コンテナで実施し、結果を記録後にコンテナとネットワークを削除しました。初回解析結果との差分は上記の再解析結果を参照してください。
